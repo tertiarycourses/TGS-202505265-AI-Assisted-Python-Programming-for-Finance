@@ -204,10 +204,26 @@ def merge_old_versions(root, folder_path, archive_path, dry):
             print(f"    merge:   {name}/  ->  archive/")
             if dry:
                 continue
+            # A file owned by ANOTHER Google account cannot be moved by this one
+            # (403 insufficientFilePermissions). Warn and leave it in place rather
+            # than aborting the whole push — it is already a superseded file
+            # sitting in an "old versions" folder, so leaving it is harmless.
+            stuck = 0
             for e in rc(["lsjson", f"{REMOTE}:{folder_path}/{name}"], root, parse=True):
-                rc(["moveto", f"{REMOTE}:{folder_path}/{name}/{e['Name']}",
-                    f"{REMOTE}:{archive_path}/{e['Name']}"], root)
-            rc(["rmdir", f"{REMOTE}:{folder_path}/{name}"], root)
+                try:
+                    rc(["moveto", f"{REMOTE}:{folder_path}/{name}/{e['Name']}",
+                        f"{REMOTE}:{archive_path}/{e['Name']}"], root)
+                except (SystemExit, Exception) as exc:
+                    stuck += 1
+                    reason = "not owned by this account" if "insufficientFilePermissions" in str(exc) else str(exc)[:120]
+                    print(f"    WARNING: could not move {e['Name']} — {reason}; left in {name}/")
+            if stuck:
+                print(f"    WARNING: {name}/ kept ({stuck} file(s) could not be moved) — nothing deleted")
+                continue
+            try:
+                rc(["rmdir", f"{REMOTE}:{folder_path}/{name}"], root)
+            except (SystemExit, Exception) as exc:
+                print(f"    WARNING: could not remove empty {name}/ — {str(exc)[:120]}")
 
 
 def push_folder(root, folder_path, files, dry):

@@ -1,5 +1,5 @@
 ---
-description: Update the course on lms-tms.tertiaryinfotech.com — set the Trainer Slides / Learner Slides / Learner Guide / Lesson Plan URLs from the course's Google Drive folder, and attach the assessment. QUESTION PAPERS ONLY (WA + PP/CS); the answer keys are trainer-only and never reach the LMS.
+description: Update the course on lms-tms.tertiaryinfotech.com — set the Trainer Slides / Learner Slides / Learner Guide / Lesson Plan / Activities-Lab URLs from the course's Google Drive folder, and attach the assessment. QUESTION PAPERS ONLY (WA + PP/CS); the answer keys are trainer-only and never reach the LMS.
 argument-hint: [course-code | drive-folder-link]   (both optional — resolved from the repo + the LMS)
 ---
 
@@ -34,6 +34,7 @@ Write this course's Google Drive links into its course record on **lms-tms.terti
    | Learner Slides URL | the `.pdf` with "slide" in its name in **Learner Guide** (not the trainer folder) |
    | Learner Guide URL | the `.pdf` without "slide" in its name in **Learner Guide** |
    | Lesson Plan URL | the `.pdf` in **Lesson Plan** |
+   | **Activities/Lab URL** | the **Activities** FOLDER itself (the labs are a tree, not one file) |
    | **Written Assessment** | the **WA (SAQ) question paper** — `WA (SAQ) - <Title> - <VER>.docx` |
    | **Practical Performance** *or* **Case Study** | the **PP** *or* **CS** question paper — whichever instrument this course uses |
 

@@ -44,6 +44,9 @@ FOLDERS = {
     "learner_guide": ("Learner Guide", "learner guide"),
     "lesson_plan": ("Lesson Plan", "lesson plan"),
     "assessment": ("Assessment", "assessment"),
+    # The labs are a FOLDER of many files, not a single document, so the
+    # Activities/Lab URL links the folder itself (see take_folder below).
+    "activities": ("Activities", "activit"),
 }
 
 
@@ -177,7 +180,41 @@ def collect_links(root):
     if absent:
         missing[:] = [m for m in missing if not m.startswith(FIELD_LABELS[absent])]
 
+    # ---- Activities / labs. Unlike every field above this links a FOLDER, not a
+    # file: the labs are a whole tree (lab-NN markdown + the template library), and
+    # learners need the folder so they can open any of them.
+    take_folder("activitiesUrl", "activities", root, out, missing)
+
     return out, missing
+
+
+def take_folder(field, folder_key, root, out, missing):
+    """Link a Drive FOLDER (not a file) into an LMS URL field.
+
+    Every other field points at one document; the labs are a whole tree, so the
+    Activities/Lab URL has to be the folder itself.
+    """
+    canonical, hint = FOLDERS[folder_key]
+    # find_dir aborts the run when a folder is absent, which is right for the
+    # courseware folders but too harsh here: a course may legitimately have no
+    # labs. Resolve it leniently and report a miss instead.
+    dirs = rc(["lsjson", f"{REMOTE}:", "--dirs-only"], root, parse=True)
+    match = (next((d for d in dirs if d["Name"].strip().lower() == canonical.lower()), None)
+             or next((d for d in dirs if hint in d["Name"].strip().lower()), None))
+    if not match:
+        missing.append(f"{FIELD_LABELS[field]}: no '{canonical}' folder on Drive "
+                       f"(found: {', '.join(d['Name'].strip() for d in dirs) or 'nothing'})")
+        return
+    d = match["Name"]
+    entries = files_in(root, d)
+    if not entries:
+        missing.append(f"{FIELD_LABELS[field]}: Drive folder '{d.strip()}' holds no files — "
+                       f"run /gdrive-push first so the labs are uploaded")
+        return
+    # share the folder itself, then link it by id
+    rc(["link", f"{REMOTE}:{d}"], root)
+    url = f"https://drive.google.com/drive/folders/{match['ID']}"
+    out[field] = (f"{d.strip()}/ ({len(entries)} file(s))", url)
 
 
 # ------------------------------------------------------- course code (authoritative)
@@ -256,6 +293,8 @@ def check_link(url):
         return False, "NOT public — asks for access"
     m = re.search(r"<title>(.*?)</title>", html, re.S)
     name = (m.group(1) if m else "?").replace(" - Google Drive", "").strip()
+    if "/drive/folders/" in url:
+        return True, f"public folder, serves '{name}'"
     return True, f"public, serves '{name}'"
 
 
@@ -344,6 +383,7 @@ FIELD_LABELS = {
     "writtenAssessmentLink": "Written Assessment (question paper)",
     "caseStudyLink": "Case Study (question paper)",
     "practicalPerformanceAssessmentLink": "Practical Performance (question paper)",
+    "activitiesUrl": "Activities/Lab URL",
 }
 
 
@@ -458,11 +498,14 @@ def main():
         return after.get(field)
 
     def same_file(a, b):
-        """The LMS normalises Drive URLs (it drops ?usp=sharing), so compare by file ID."""
-        fid = lambda u: (re.search(r"/d/([\w-]+)|[?&]id=([\w-]+)", u or "") or None)
+        """The LMS normalises Drive URLs (it drops ?usp=sharing), so compare by ID.
+        Also matches /drive/folders/<id> for the Activities folder link."""
+        fid = lambda u: (re.search(r"/d/([\w-]+)|/folders/([\w-]+)|[?&]id=([\w-]+)",
+                                   u or "") or None)
         ma, mb = fid(a), fid(b)
         if ma and mb:
-            return (ma.group(1) or ma.group(2)) == (mb.group(1) or mb.group(2))
+            gid = lambda m: m.group(1) or m.group(2) or m.group(3)
+            return gid(ma) == gid(mb)
         return a == b
 
     for field, (name, url) in urls.items():
@@ -481,7 +524,7 @@ def main():
             print(f"  ✗ {must} was blanked by the update — investigate immediately.")
     if not ok:
         sys.exit(1)
-    print("\nAll four courseware URLs are live on the LMS-TMS course page.")
+    print(f"\nAll {len(urls)} courseware URLs are live on the LMS-TMS course page.")
 
 
 if __name__ == "__main__":

@@ -5,6 +5,10 @@ assessment/
 **/Answer to *
 **/Answers to *
 
+# ---------------------------------------------------------------- reference
+# Source material the courseware is derived from — not ours to republish.
+reference/
+
 # ---------------------------------------------------------------- archives
 *.zip
 

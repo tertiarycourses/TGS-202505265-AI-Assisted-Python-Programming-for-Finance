@@ -55,12 +55,14 @@ crossover backtesting, portfolio and instrument modelling, and a progressive Str
 ```
 courseware/    slide deck (PPTX + PDF), Lesson Plan and Learner Guide (DOCX + PDF)
 labs/          62 lab folders (README.md + starter .py) + the combined Colab notebook
-reference/     the original source deck and notebook this courseware was built from
 LG-*.md        the Learner Guide as Markdown, generated from the same source as the DOCX
 ```
 
 > The assessment set (question papers and answer keys) is **deliberately excluded** from this
 > repository — it is trainer-only material and is distributed through the LMS.
+>
+> The `reference/` folder (the original source deck and notebook this courseware was derived
+> from) is likewise **excluded** — it is third-party source material, not ours to republish.
 
 ## Running the labs
 
