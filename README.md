@@ -1,6 +1,6 @@
 # AI Assisted Python Programming for Finance
 
-[![Course](https://img.shields.io/badge/Course-TGS--2025052659-1f6feb)](https://www.tertiarycourses.com.sg/)
+[![Course](https://img.shields.io/badge/Course-TGS--2025052659-1f6feb)](https://www.tertiarycourses.com.sg/ibf-ai-assisted-python-programming-for-finance.html)
 [![IBF](https://img.shields.io/badge/IBF--STS-FSE--DIT--3018--1.1-10b981)](https://www.ibf.org.sg)
 [![Python](https://img.shields.io/badge/Python-3.12-3776ab?logo=python&logoColor=white)](https://www.python.org/)
 [![uv](https://img.shields.io/badge/managed%20by-uv-de5fe9)](https://docs.astral.sh/uv/)

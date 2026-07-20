@@ -14,7 +14,7 @@ Securely push a project to GitHub. Every run guarantees these steps:
 4. **Update code to GitHub** — stage, commit, and push the changes (Phase 3).
 5. **Always update the README** — on every push, reconcile `README.md` against the repo's real current state and fix anything stale; for web/UI projects also add/refresh a Playwright `screenshot.png` (Phase 2).
 6. **Add footer attribution** — for websites/web apps, add "Powered by Tertiary Infotech Academy Pte Ltd" to the footer; skipped for mobile apps (Phase 2.5).
-7. **Update the GitHub repo** — set the repo About: description, live site URL, topics, and enable Discussions (Phase 5).
+7. **Update the GitHub repo** — set the repo About: description, live site URL, topics, and enable Discussions (Phase 5). For WSQ/IBF course repos the URL **must** be the course's own registration deep link on www.tertiarycourses.com.sg, verified HTTP 200 — never the bare domain.
 8. **Create GitHub Pages for static sites** — auto-deploy static projects to GitHub Pages via a GitHub Actions workflow (Phase 6).
 
 Runs using **Claude Code with subscription plan** — do NOT use pay-as-you-go API keys.
@@ -226,7 +226,22 @@ gh repo view --json description,homepageUrl,repositoryTopics
 ```
 
 - **Description** — if unset, generate a compelling ≤350-char description from `README.md` / `package.json` / `pyproject.toml` / `Cargo.toml` / source. Start with a verb/noun, no emojis: `gh repo edit --description "..."`
-- **Live site URL** — detect from Vercel (`.vercel/project.json`, `vercel.json`), GitHub Pages (`gh api /repos/$OWNER/$REPO/pages`), `package.json` `homepage`, README URLs (`.vercel.app`, `.netlify.app`, `.github.io`, `.fly.dev`, `.railway.app`), or `CNAME`: `gh repo edit --homepage "..."`
+- **Live site URL** —
+  **WSQ / IBF course repos (TGS- or IBF-coded, with `courseware/` + `labs/`): the homepage MUST
+  be the course's own registration page on www.tertiarycourses.com.sg — the full deep link, e.g.
+  `https://www.tertiarycourses.com.sg/ibf-ai-assisted-python-programming-for-finance.html`.**
+  The bare domain `https://www.tertiarycourses.com.sg` is **not acceptable** — it drops a visitor
+  on the site root and makes them hunt for the course. If the repo currently has the bare domain,
+  replace it. Find the deep link in `README.md`, the course brochure, or the LMS-TMS course
+  record; **verify it returns HTTP 200 before setting it**
+  (`curl -s -o /dev/null -w '%{http_code}' -L "<url>"`) so a typo cannot publish a dead link.
+  If no course page can be found or it does not resolve, **ask the user for the URL** rather than
+  falling back to the bare domain.
+
+  All other projects — detect from Vercel (`.vercel/project.json`, `vercel.json`), GitHub Pages
+  (`gh api /repos/$OWNER/$REPO/pages`), `package.json` `homepage`, README URLs (`.vercel.app`,
+  `.netlify.app`, `.github.io`, `.fly.dev`, `.railway.app`), or `CNAME`:
+  `gh repo edit --homepage "..."`
 - **Topics** — detect from languages/frameworks/platforms/domain; **add**, never replace: `gh repo edit --add-topic "t1" --add-topic "t2"`
 
 Then enable Discussions if not already on:
@@ -278,6 +293,7 @@ Summarize: push status, branch, commit, PR link (if any), description/homepage/t
 WSQ courseware repositories (TGS-coded course repos with `courseware/` + `labs/`) do
 **not** deploy to GitHub Pages. Do not create a `deploy-pages.yml` workflow, do not
 enable the Pages site, and skip any "deploy static site" phase for these repos. The
-repo homepage should point to the course page on www.tertiarycourses.com.sg instead.
+repo homepage must instead be the course's **own registration page** deep link on
+www.tertiarycourses.com.sg (never the bare domain) — see Phase 5.
 Lab web apps are run locally by learners (or demoed via localhost) — they don't need
 a hosted deployment.
