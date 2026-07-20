@@ -106,15 +106,26 @@ that is not ours to republish, and it does not belong in a public repo even when
 derived work does.
 
 1. **Gitignore it.** Ensure `.gitignore` contains the rule (add only if not already present —
-   `grep -qF "reference/" .gitignore`):
+   `grep -qF "**/reference/" .gitignore`). Use the unanchored form so it matches at **any**
+   depth — a bare `reference/` only catches the repo root and misses `docs/reference/`:
    ```
    # Source material the project was derived from — not ours to republish.
-   reference/
+   **/reference/
    ```
 
-2. **Untrack if already committed.** `git ls-files reference/` — if non-empty,
-   `git rm -r --cached reference/` (keeps the local files). Confirm with
-   `git check-ignore -v reference` and verify `git ls-files reference/` is now empty.
+2. **Check each hit before untracking — "reference" is ambiguous.** Run
+   `git ls-files | grep -E '(^|/)reference/'` and **look at what comes back**. The rule targets
+   *derived-from source material* (an original deck, a partner notebook, a vendor PDF). It does
+   **not** target a *reference implementation* — builder scripts, fixtures, sample configs, or
+   toolchain code that a skill or test suite actually runs. Untracking those breaks the repo for
+   anyone who clones it.
+   - Source material → untrack: `git rm -r --cached <folder>` (keeps local files).
+   - Reference implementation → **keep it, and add a negation** so a later run does not
+     re-flag it, e.g. `!.claude/skills/**/reference/` plus `!.claude/skills/**/reference/**`.
+   - Genuinely unclear → **ask the user**; do not guess. Silently untracking working code is
+     far more damaging than leaving one folder tracked for another turn.
+
+   Then confirm the rule bites at depth: `git check-ignore -v reference/x docs/reference/x`.
 
 3. **Say what untracking does and does not do.** Removing it from the index stops *future*
    publication, but any file already pushed **remains in the git history on GitHub and is

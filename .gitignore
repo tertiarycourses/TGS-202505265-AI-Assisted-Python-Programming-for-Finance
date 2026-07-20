@@ -7,7 +7,12 @@ assessment/
 
 # ---------------------------------------------------------------- reference
 # Source material the courseware is derived from — not ours to republish.
-reference/
+# Unanchored so it matches at any depth (reference/, docs/reference/, …).
+**/reference/
+# EXCEPTION: .claude/skills/**/reference/ is a *reference implementation* — the builder
+# scripts and course-data modules the skills run. Toolchain code, not source material.
+!.claude/skills/**/reference/
+!.claude/skills/**/reference/**
 
 # ---------------------------------------------------------------- archives
 *.zip
