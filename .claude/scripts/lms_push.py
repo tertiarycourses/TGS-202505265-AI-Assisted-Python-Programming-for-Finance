@@ -164,9 +164,14 @@ def collect_links(root):
     take("caseStudyLink", "assessment",
          lambda n: docx(n) and re.search(r"case study|\(cs\)", n, re.I),
          "Case Study (CS) question paper .docx")
+    # "Practical Test" and "Practical Performance" are the same instrument — the house naming
+    # varies between courses (the cover page reads "PRACTICAL TEST (PP)" either way), so both
+    # spellings must resolve to the PP field. Without this a "Practical Test - ….docx" silently
+    # reports as missing and the LMS keeps serving whatever stale paper it already had.
     take("practicalPerformanceAssessmentLink", "assessment",
-         lambda n: docx(n) and re.search(r"^\s*pp\b|practical performance|\(pp\)", n, re.I),
-         "PP question paper .docx")
+         lambda n: docx(n) and re.search(
+             r"^\s*pp\b|practical performance|practical test|\(pp\)", n, re.I),
+         "PP / Practical Test question paper .docx")
 
     # A course has exactly ONE practical instrument — a Case Study or a PP, never both.
     # Whichever paper is on Drive IS the instrument; the absence of the other is not "missing",
@@ -396,6 +401,10 @@ def main():
     ap.add_argument("--dry-run", action="store_true", help="show the plan; do not write to LMS-TMS")
     ap.add_argument("--allow-missing", action="store_true",
                     help="update only the fields whose file exists on Drive, instead of aborting")
+    ap.add_argument("--only", metavar="FIELD", action="append",
+                    help="write ONLY these LMS fields (repeatable), e.g. --only activitiesUrl. "
+                         "Every other field is left exactly as it is on the LMS. Use when one "
+                         "field is verified good but others are still blocked on QA.")
     a = ap.parse_args()
 
     # The course code is taken FROM THE COURSEWARE ITSELF (deck cover / LG / LP), not from
@@ -449,6 +458,22 @@ def main():
 
     print("Resolving courseware files on Google Drive…")
     urls, missing = collect_links(root)
+
+    # --only: restrict the write to an explicit whitelist. Everything else is dropped from
+    # the payload entirely (not blanked), so untouched fields keep their current LMS value.
+    if a.only:
+        unknown = [f for f in a.only if f not in FIELD_LABELS]
+        if unknown:
+            raise SystemExit(f"--only: unknown field(s) {unknown}. "
+                             f"Valid: {', '.join(sorted(FIELD_LABELS))}")
+        absent = [f for f in a.only if f not in urls]
+        if absent:
+            raise SystemExit("--only: no file/folder resolved on Drive for "
+                             f"{[FIELD_LABELS[f] for f in absent]} — nothing to write.")
+        urls = {f: urls[f] for f in a.only}
+        missing = []   # the excluded fields are deliberately untouched, not "missing"
+        print(f"  --only: writing {len(urls)} field(s); all others left untouched on the LMS.")
+
     for field, (name, url) in urls.items():
         print(f"  {FIELD_LABELS[field]:<20} {name}\n  {'':<20} {url}")
 
