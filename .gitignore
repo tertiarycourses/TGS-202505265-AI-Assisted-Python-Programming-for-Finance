@@ -1,0 +1,25 @@
+# ---------------------------------------------------------------- CONFIDENTIAL
+# The assessment set (question papers AND answer keys) is trainer-only and must
+# NEVER be published to GitHub.
+assessment/
+**/Answer to *
+**/Answers to *
+
+# ---------------------------------------------------------------- archives
+*.zip
+
+# ---------------------------------------------------------------- OS / editor
+.DS_Store
+~$*
+*.swp
+
+# ---------------------------------------------------------------- python
+__pycache__/
+*.py[cod]
+.venv/
+venv/
+.uv/
+
+# The assessment BUILDERS embed the question bank and model answers — also confidential.
+.claude/skills/wsq-assessment/
+.claude/scripts/tms_assessment.py
