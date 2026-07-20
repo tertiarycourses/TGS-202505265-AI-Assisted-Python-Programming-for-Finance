@@ -9,6 +9,8 @@
 Courseware for the 4-day instructor-led course **AI Assisted Python Programming for Finance**, delivered by
 **Tertiary Infotech Academy Pte Ltd** (UEN 201200696W).
 
+**📅 [Register for this course →](https://www.tertiarycourses.com.sg/ibf-ai-assisted-python-programming-for-finance.html)**
+
 Accredited under the **Skills Framework for Financial Services**, IBF Standard **FSE-DIT-3018-1.1**, and
 eligible for funding under the **IBF Standards Training Scheme (IBF-STS)** — 50–70% course fee subsidy,
 capped at S$3,000 per candidate per course, subject to all eligibility criteria being met.
@@ -121,6 +123,8 @@ Open book — slides, Learner Guide and lab files. Passing score **80%**. A mini
 is required to be eligible for assessment and IBF-STS funding.
 
 ---
+
+**Register:** [AI Assisted Python Programming for Finance](https://www.tertiarycourses.com.sg/ibf-ai-assisted-python-programming-for-finance.html)
 
 © 2026 Tertiary Infotech Academy Pte Ltd (UEN 201200696W). All rights reserved.
 [www.tertiarycourses.com.sg](https://www.tertiarycourses.com.sg) · enquiry@tertiaryinfotech.com · +65 6100 0613
